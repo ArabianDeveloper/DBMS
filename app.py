@@ -53,41 +53,29 @@ def ShowDB():
         conn = pymysql.connect(host=server, user= username, password=password)
         with conn.cursor() as cursor:
             databases = cursor.execute("SHOW DATABASES")
-            L1F5.config(text = databases)
-        F5.config(width=190, height=250)
+            L1F5.config(text=databases)
+        placer(F5, w=190, h=250)
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
-def SCreate_Table():
-    try : 
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
-
-        def Create_Tabel():
-            try :
-                with conn.cursor() as cursor:
-                    sql = cursor.execute(f"CREATE TABEL {db} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL) ENGINE = InnoDB;")
-                tables()
-            except pymysql.Error as r:
-                messagebox.showerror('Error', r)
-
-    except pymysql.Error as r:
-        messagebox.showerror('Error', r)
-
-def SCreate_Col():
-
+def Create_Tabel():
     try :
         conn = pymysql.connect(host=server, user= username, password=password, database=db)
-
-        def Create_Col():
-                try :
-                    with conn.cursor() as cursor:
-                        sql = cursor.execute(f"ALTER TABLE `{ent1L2F4.get()}` ADD `{ent1L3F4.get()}` {ent1L4F4.get()}({ent1L5F4.get()}) NOT NULL {ent1L1F4.get().replace(',',' ')};")
-                        # sql = cursor.execute(f"ALTER TABEL `{ent1L2F4.get()}` ADD `{ent1L3F4.get()}` {ent1L4F4.get()} ({ent1L5F4.get()});")
-                except pymysql.Error as r:
-                    messagebox.showerror('Error', r)
-    
+        with conn.cursor() as cursor:
+            sql = cursor.execute(f"CREATE TABEL {db} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL) ENGINE = InnoDB;")
+        tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
+
+
+def Create_Col():
+    try :
+        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        with conn.cursor() as cursor:
+            sql = cursor.execute(f"ALTER TABLE `{ent1L2F4.get()}` ADD `{ent1L3F4.get()}` {ent1L4F4.get()}({ent1L5F4.get()}) NOT NULL {ent1L1F4.get().replace(',',' ')};")
+    except pymysql.Error as r:
+        messagebox.showerror('Error', r)
+
 
 def CHDB():
     global db
@@ -172,8 +160,8 @@ def tables():
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
-def hider(element):
-    element.config(width = 0, height = 0)
+def placer(element, w, h):
+    element.place(width=w, height=h)
 
 root = Tk() # Window
 root.geometry('1010x500+200+40') # settings of geometry
@@ -193,7 +181,7 @@ L1F1 = Label(F1, bg=SEBG, text='Databases')
 L1F1.place(x=10, y=50) 
 btn1L1F1 = Button(F1, cursor='hand2', text='Show', command=ShowDB, state=STATE)
 btn1L1F1.place(x=100, y=50, width=125)
-btn2L1F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:hider(F5))
+btn2L1F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:placer(F5, w=0, h=0))
 btn2L1F1.place(x=230, y=50, width=60)
 
 L2F1 = Label(F1, bg=SEBG, text='DB-Name')
@@ -205,16 +193,16 @@ btn1L2F1.place(x=230, y=80, width=60)
 
 L3F1 = Label(F1, bg=SEBG, text='Table')
 L3F1.place(x=10, y=110) 
-btn1L3F1 = Button(F1, cursor='hand2', text='Create Table', state=STATE)
+btn1L3F1 = Button(F1, cursor='hand2', text='Create Table', state=STATE, command=lambda:placer(F3, w=200, h=250))
 btn1L3F1.place(x=100, y=110, width=125)
-btn2L3F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide')
+btn2L3F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:placer(F3, w=0, h=0))
 btn2L3F1.place(x=230, y=110, width=60)
 
 L4F1 = Label(F1, bg=SEBG, text='Cols')
 L4F1.place(x=10, y=140)
-btn1L4F1 = Button(F1, cursor='hand2', text='Create Col', state=STATE)
+btn1L4F1 = Button(F1, cursor='hand2', text='Create Col', state=STATE, command=lambda:placer(F4, w=200, h=250))
 btn1L4F1.place(x=100, y=140, width=125)
-btn2L4F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide')
+btn2L4F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:placer(F4, w=0, h=0))
 btn2L4F1.place(x=230, y=140, width=60)
 
 
@@ -241,43 +229,6 @@ ent1L3F2.place(x=100,y=110, width=180)
 
 btn1F2 = Button(F2, state='normal', cursor='hand2', text='Connect', bg=SUCCESSCOLOR, command=Connection)
 btn1F2.place(x=100, y=140, width=180)
-
-
-
-
-F4 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
-F4.place(x=213, y=240, width=200, height=250)
-titleF4 = Label(F4,text='Create Column', fg=FONTCOLOR, bg=SECONDRYCOLOR, font=(FONT, 12))
-titleF4.pack(fill=X)
-
-L1F4 = Label(F4, bg=SEBG, text='Col-Props')
-L1F4.place(x=6,y=170)
-ent1L1F4 = Entry(F4)
-ent1L1F4.place(x=86,y=170, width=100)
-
-L2F4 = Label(F4, bg=SEBG, text='Table-Name')
-L2F4.place(x=6,y=50)
-ent1L2F4 = Entry(F4)
-ent1L2F4.place(x=86,y=50, width=100)
-
-L3F4 = Label(F4, bg=SEBG, text='Col-Name')
-L3F4.place(x=6,y=80)
-ent1L3F4 = Entry(F4)
-ent1L3F4.place(x=86,y=80, width=100)
-
-L4F4 = Label(F4, bg=SEBG, text='Col-Type')
-L4F4.place(x=6,y=110)
-choices = ['int', 'varchar', 'text', 'date']
-ent1L4F4 = ttk.Combobox(F4, values = choices)
-ent1L4F4.place(x=86,y=110, width=100)
-
-L5F4 = Label(F4, bg=SEBG, text='Col-Length')
-L5F4.place(x=6,y=140)
-ent1L5F4 = Entry(F4)
-ent1L5F4.place(x=86,y=140, width=100)
-
-btn1F4 = Button(F4, cursor='hand2', text='Create', bg=SUCCESSCOLOR, state=STATE)
-btn1F4.place(x=6, y=205, width=180)
 
 
 
@@ -312,15 +263,53 @@ L5F3.place(x=6,y=140)
 ent1L5F3 = Entry(F3)
 ent1L5F3.place(x=86,y=140, width=100)
 
-btn1F3 = Button(F3, cursor='hand2', text='Create', bg=SUCCESSCOLOR, state=STATE)
+btn1F3 = Button(F3, cursor='hand2', text='Create', bg=SUCCESSCOLOR, state=STATE, command=Create_Tabel)
 btn1F3.place(x=6, y=205, width=180)
 
 
+
+F4 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
+F4.place(x=213, y=240, width=200, height=250)
+titleF4 = Label(F4,text='Create Column', fg=FONTCOLOR, bg=SECONDRYCOLOR, font=(FONT, 12))
+titleF4.pack(fill=X)
+
+L1F4 = Label(F4, bg=SEBG, text='Col-Props')
+L1F4.place(x=6,y=170)
+ent1L1F4 = Entry(F4)
+ent1L1F4.place(x=86,y=170, width=100)
+
+L2F4 = Label(F4, bg=SEBG, text='Table-Name')
+L2F4.place(x=6,y=50)
+ent1L2F4 = Entry(F4)
+ent1L2F4.place(x=86,y=50, width=100)
+
+L3F4 = Label(F4, bg=SEBG, text='Col-Name')
+L3F4.place(x=6,y=80)
+ent1L3F4 = Entry(F4)
+ent1L3F4.place(x=86,y=80, width=100)
+
+L4F4 = Label(F4, bg=SEBG, text='Col-Type')
+L4F4.place(x=6,y=110)
+choices = ['int', 'varchar', 'text', 'date']
+ent1L4F4 = ttk.Combobox(F4, values = choices)
+ent1L4F4.place(x=86,y=110, width=100)
+
+L5F4 = Label(F4, bg=SEBG, text='Col-Length')
+L5F4.place(x=6,y=140)
+ent1L5F4 = Entry(F4)
+ent1L5F4.place(x=86,y=140, width=100)
+
+btn1F4 = Button(F4, cursor='hand2', text='Create', bg=SUCCESSCOLOR, state=STATE, command=Create_Col)
+btn1F4.place(x=6, y=205, width=180)
+
+
+
 F5 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
-F5.place(x=420, y=240, width=190, height=250)
+F5.place(x=420, y=240, width=0, height=0)
 titleF5 = Label(F5,text='Databases', fg='white', bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF5.pack(fill=X)
-L1F5 = Label(F5).pack()
+L1F5 = Label(F5, bg=SEBG, text='')
+L1F5.pack()
 
 
 F6 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
