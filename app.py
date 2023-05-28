@@ -62,7 +62,7 @@ def Create_Tabel():
     try :
         conn = pymysql.connect(host=server, user= username, password=password, database=db)
         with conn.cursor() as cursor:
-            sql = cursor.execute(f"CREATE TABEL {db} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL) ENGINE = InnoDB;")
+            sql = cursor.execute(f"CREATE TABEL {db} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL);")
         tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
