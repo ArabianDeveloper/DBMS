@@ -53,7 +53,9 @@ def ShowDB():
         conn = pymysql.connect(host=server, user= username, password=password)
         with conn.cursor() as cursor:
             databases = cursor.execute("SHOW DATABASES")
-            L1F5.config(text=databases)
+            for db in cursor:
+                L1F5 = Label(F5, bg=SEBG, text=db[0])
+                L1F5.pack()
         placer(F5, w=190, h=250)
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -308,8 +310,6 @@ F5 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F5.place(x=420, y=240, width=0, height=0)
 titleF5 = Label(F5,text='Databases', fg='white', bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF5.pack(fill=X)
-L1F5 = Label(F5, bg=SEBG, text='')
-L1F5.pack()
 
 
 F6 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
