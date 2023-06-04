@@ -6,13 +6,12 @@ import pymysql
 
 # Variables
 PRIMARYCOLOR = '#19282F'
-SECONDRYCOLOR = '#5534A5'
-SUCCESSCOLOR = '#F4DFBA'
+SECONDRYCOLOR = '#19282F'
+SUCCESSCOLOR = '#19282F'
 FONT = 'Tajwal'
 PRBG = 'white'
 SEBG = 'whitesmoke'
 FONTCOLOR = 'white'
-STATE = 'normal'
 
 is_connect = False
 server = ''
@@ -40,6 +39,8 @@ def Connection():
         messagebox.showinfo('Database Managment System', 'server is connected')
         L1F10.configure(text=f'Server : {server}')
         L3F10.configure(text=f'Is Connect : {is_connect}')
+        ent1L1F6.config(values=ShowDB())
+        ent1L1F8.config(values=ShowDB())
     except pymysql.Error as r:
         is_connect = False
         messagebox.showerror('Error', r)
@@ -56,7 +57,10 @@ def ShowDB():
             for db in cursor:
                 L1F5 = Label(F5, bg=SEBG, text=db[0])
                 L1F5.pack()
+            databases = cursor.execute("SHOW DATABASES")
+            return cursor.fetchall()
         placer(F5, w=190, h=250)
+
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -89,6 +93,7 @@ def CHDB():
             conn.commit()
         L2F10.configure(text=f'Database : {db}')
         L4F10.configure(text=f'Tables : {tables()}')
+        tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -151,13 +156,18 @@ def chfi():
         else :
             L2F9.configure(text = file)
 
-
+Variable()
 
 def tables():
     try :
         conn = pymysql.connect(host=server, user= username, password=password, database=db)
         with conn.cursor() as cursor:
             tables = cursor.execute(f"show tables")
+            ent1L2F4.config(values=cursor.fetchall())
+            tables = cursor.execute(f"show tables")
+            ent1L2F6.config(values=cursor.fetchall())
+            tables = cursor.execute(f"show tables")
+            ent1L1F7.config(values=cursor.fetchall())
             return tables
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -181,30 +191,30 @@ titleF1.pack(fill=X)
 
 L1F1 = Label(F1, bg=SEBG, text='Databases')
 L1F1.place(x=10, y=50) 
-btn1L1F1 = Button(F1, cursor='hand2', text='Show', command=ShowDB, state=STATE)
+btn1L1F1 = Button(F1, cursor='hand2', text='Show', command=ShowDB)
 btn1L1F1.place(x=100, y=50, width=125)
-btn2L1F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:placer(F5, w=0, h=0))
+btn2L1F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='Hide', command=lambda:placer(F5, w=0, h=0))
 btn2L1F1.place(x=230, y=50, width=60)
 
 L2F1 = Label(F1, bg=SEBG, text='DB-Name')
 L2F1.place(x=10, y=80)
 ent1L2F1 = Entry(F1)
 ent1L2F1.place(x=100,y=80, width=125)
-btn1L2F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Create', command=CRDB)
+btn1L2F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='Create', command=CRDB)
 btn1L2F1.place(x=230, y=80, width=60)
 
 L3F1 = Label(F1, bg=SEBG, text='Table')
 L3F1.place(x=10, y=110) 
-btn1L3F1 = Button(F1, cursor='hand2', text='Create Table', state=STATE, command=lambda:placer(F3, w=200, h=250))
+btn1L3F1 = Button(F1, cursor='hand2', text='Create Table', command=lambda:placer(F3, w=200, h=250))
 btn1L3F1.place(x=100, y=110, width=125)
-btn2L3F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:placer(F3, w=0, h=0))
+btn2L3F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='Hide', command=lambda:placer(F3, w=0, h=0))
 btn2L3F1.place(x=230, y=110, width=60)
 
 L4F1 = Label(F1, bg=SEBG, text='Cols')
 L4F1.place(x=10, y=140)
-btn1L4F1 = Button(F1, cursor='hand2', text='Create Col', state=STATE, command=lambda:placer(F4, w=200, h=250))
+btn1L4F1 = Button(F1, cursor='hand2', text='Create Col', command=lambda:placer(F4, w=200, h=250))
 btn1L4F1.place(x=100, y=140, width=125)
-btn2L4F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='Hide', command=lambda:placer(F4, w=0, h=0))
+btn2L4F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='Hide', command=lambda:placer(F4, w=0, h=0))
 btn2L4F1.place(x=230, y=140, width=60)
 
 
@@ -229,7 +239,7 @@ L3F2.place(x=10, y=110)
 ent1L3F2 = Entry(F2)
 ent1L3F2.place(x=100,y=110, width=180)
 
-btn1F2 = Button(F2, state='normal', cursor='hand2', text='Connect', bg=SUCCESSCOLOR, command=Connection)
+btn1F2 = Button(F2, cursor='hand2', text='Connect', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=Connection)
 btn1F2.place(x=100, y=140, width=180)
 
 
@@ -249,6 +259,7 @@ L2F3.place(x=6,y=50)
 ent1L2F3 = Entry(F3)
 ent1L2F3.place(x=86,y=50, width=100)
 
+
 L3F3 = Label(F3, bg=SEBG, text='Col-Name')
 L3F3.place(x=6,y=80)
 ent1L3F3 = Entry(F3)
@@ -265,7 +276,7 @@ L5F3.place(x=6,y=140)
 ent1L5F3 = Entry(F3)
 ent1L5F3.place(x=86,y=140, width=100)
 
-btn1F3 = Button(F3, cursor='hand2', text='Create', bg=SUCCESSCOLOR, state=STATE, command=Create_Tabel)
+btn1F3 = Button(F3, cursor='hand2', text='Create', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=Create_Tabel)
 btn1F3.place(x=6, y=205, width=180)
 
 
@@ -282,7 +293,7 @@ ent1L1F4.place(x=86,y=170, width=100)
 
 L2F4 = Label(F4, bg=SEBG, text='Table-Name')
 L2F4.place(x=6,y=50)
-ent1L2F4 = Entry(F4)
+ent1L2F4 = ttk.Combobox(F4)
 ent1L2F4.place(x=86,y=50, width=100)
 
 L3F4 = Label(F4, bg=SEBG, text='Col-Name')
@@ -301,7 +312,7 @@ L5F4.place(x=6,y=140)
 ent1L5F4 = Entry(F4)
 ent1L5F4.place(x=86,y=140, width=100)
 
-btn1F4 = Button(F4, cursor='hand2', text='Create', bg=SUCCESSCOLOR, state=STATE, command=Create_Col)
+btn1F4 = Button(F4, cursor='hand2', text='Create', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=Create_Col)
 btn1F4.place(x=6, y=205, width=180)
 
 
@@ -319,16 +330,16 @@ titleF6.pack(fill=X)
 
 L1F6 = Label(F6, bg=SEBG, text='Database')
 L1F6.place(x=0, y=50) 
-ent1L1F6 = Entry(F6)
+ent1L1F6 = ttk.Combobox(F6)
 ent1L1F6.place(x=55,y=50, width=90)
-btn2L1F6 = Button(F6, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='DEL', command=deldb)
+btn2L1F6 = Button(F6, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='DEL', command=deldb)
 btn2L1F6.place(x=150, y=50, width=40)
 
 L2F6 = Label(F6, bg=SEBG, text='Tabel')
 L2F6.place(x=0, y=80)
-ent1L2F6 = Entry(F6)
+ent1L2F6 = ttk.Combobox(F6)
 ent1L2F6.place(x=55,y=80, width=90)
-btn1L2F6 = Button(F6, cursor='hand2', bg=SUCCESSCOLOR, state=STATE, text='DEL', command=deltb)
+btn1L2F6 = Button(F6, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='DEL', command=deltb)
 btn1L2F6.place(x=150, y=80, width=40)
 
 
@@ -339,7 +350,7 @@ titleF7.pack(fill=X)
 
 L1F7 = Label(F7, bg=SEBG, text='Table')
 L1F7.place(x=5, y=50) 
-ent1L1F7 = Entry(F7)
+ent1L1F7 = ttk.Combobox(F7)
 ent1L1F7.place(x=70,y=50, width=115)
 
 L2F7 = Label(F7, bg=SEBG, text='Column')
@@ -347,7 +358,7 @@ L2F7.place(x=5, y=80)
 ent1L2F7 = Entry(F7)
 ent1L2F7.place(x=70,y=80, width=115)
 
-btn1F7 = Button(F7, cursor='hand2', text='Delete', bg=SUCCESSCOLOR, state=STATE, command=delcol)
+btn1F7 = Button(F7, cursor='hand2', text='Delete', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=delcol)
 btn1F7.place(x=5, y=110, width=180)
 
 
@@ -358,10 +369,10 @@ titleF8.pack(fill=X)
 
 L1F8 = Label(F8, bg=SEBG, text='Database')
 L1F8.place(x=5, y=50) 
-ent1L1F8 = Entry(F8)
+ent1L1F8 = ttk.Combobox(F8)
 ent1L1F8.place(x=65,y=50, width=105)
 
-btn1F8 = Button(F8, cursor='hand2', text='Switch', bg=SUCCESSCOLOR, state=STATE, command=CHDB)
+btn1F8 = Button(F8, cursor='hand2', text='Switch', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=CHDB)
 btn1F8.place(x=5, y=80, width=170)
 
 
@@ -372,12 +383,12 @@ titleF9.pack(fill=X)
 
 L1F9 = Label(F9, bg=SEBG, text='File')
 L1F9.place(x=5, y=50) 
-btn1L1F9 = Button(F9, text='Chose File', command=chfi, bg=SUCCESSCOLOR).place(x=105,y=50, width=70)
+btn1L1F9 = Button(F9, text='Chose File', command=chfi, bg=SUCCESSCOLOR, fg=FONTCOLOR).place(x=105,y=50, width=70)
 
 L2F9 = Label(F9, bg=SEBG, text='لم يتم اختيار ملف')
 L2F9.place(x=5, y=80)
 
-btn1F9 = Button(F9, cursor='hand2', text='Run', bg=SUCCESSCOLOR, state=STATE, command=comfile)
+btn1F9 = Button(F9, cursor='hand2', text='Run', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=comfile)
 btn1F9.place(x=5, y=110, width=170)
 
 
