@@ -13,11 +13,7 @@ PRBG = 'white'
 SEBG = 'whitesmoke'
 FONTCOLOR = 'white'
 
-is_connect = False
-server = ''
-username = ''
-password = ''
-db = ''
+
 file = ''
 
 def Connection():
@@ -26,23 +22,21 @@ def Connection():
     global username
     global password
 
-    server = ent1L1F2.get()
-    username = ent1L2F2.get()
-    password = ent1L3F2.get()
+    server.set(ent1L1F2.get())
+    username.set(ent1L2F2.get())
+    password.set(ent1L3F2.get())
     try :
         conn =  pymysql.connect(
-                        host= server,
-                        user= username,
-                        password= password
+                        host= server.get(),
+                        user= username.get(),
+                        password= password.get()
                     )
-        is_connect = True
+        is_connect.set(True)
         messagebox.showinfo('Database Managment System', 'server is connected')
-        L1F10.configure(text=f'Server : {server}')
-        L3F10.configure(text=f'Is Connect : {is_connect}')
         ent1L1F6.config(values=ShowDB())
         ent1L1F8.config(values=ShowDB())
     except pymysql.Error as r:
-        is_connect = False
+        is_connect.set(False)
         messagebox.showerror('Error', r)
 
 def ShowDB():
@@ -51,7 +45,7 @@ def ShowDB():
     global password
 
     try :
-        conn = pymysql.connect(host=server, user= username, password=password)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             databases = cursor.execute("SHOW DATABASES")
             for db in cursor:
@@ -66,32 +60,29 @@ def ShowDB():
 
 def Create_Tabel():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
-            sql = cursor.execute(f"CREATE TABEL {db} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL);")
+            sql = cursor.execute(f"CREATE TABEL {database.get()} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL);")
         tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
-
 def Create_Col():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
             sql = cursor.execute(f"ALTER TABLE `{ent1L2F4.get()}` ADD `{ent1L3F4.get()}` {ent1L4F4.get()}({ent1L5F4.get()}) NOT NULL {ent1L1F4.get().replace(',',' ')};")
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
-
 def CHDB():
-    global db
+    global database
     try : 
-        conn = pymysql.connect(host=server, user= username, password=password)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             cursor.execute(f'use {ent1L1F8.get()}')
-            db = ent1L1F8.get()
+            database.set(ent1L1F8.get())
             conn.commit()
-        L2F10.configure(text=f'Database : {db}')
         L4F10.configure(text=f'Tables : {tables()}')
         tables()
     except pymysql.Error as r:
@@ -99,7 +90,7 @@ def CHDB():
 
 def CRDB():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE `{ent1L2F1.get()}`;")
         ShowDB()
@@ -108,29 +99,27 @@ def CRDB():
         messagebox.showerror('Error', r)
 
 def deldb():
-    global db
     try :
-        conn = pymysql.connect(host=server, user= username, password=password)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             cursor.execute(f"DROP DATABASE `{ent1L1F6.get()}`;")
         ShowDB()
-        L2F10.configure(text=f'Database : ')
         L4F10.configure(text=f'Tables : ')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
 def deltb():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
-            cursor.execute(f"DROP TABLE `{db}`.`{ent1L2F6.get()}`")
+            cursor.execute(f"DROP TABLE `{database.get()}`.`{ent1L2F6.get()}`")
         tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
 def delcol():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
             cursor.execute(f"ALTER TABLE `{ent1L1F7.get()}` DROP `{ent1L2F7.get()}`;")
     except pymysql.Error as r:
@@ -138,7 +127,7 @@ def delcol():
 
 def comfile():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         print(file)
         with conn.cursor() as cursor:
             cursor.execute(f"source {file}")
@@ -158,15 +147,14 @@ def chfi():
 
 def tables():
     try :
-        conn = pymysql.connect(host=server, user= username, password=password, database=db)
+        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
-            tables = cursor.execute(f"show tables")
-            ent1L2F4.config(values=cursor.fetchall())
-            tables = cursor.execute(f"show tables")
-            ent1L2F6.config(values=cursor.fetchall())
-            tables = cursor.execute(f"show tables")
-            ent1L1F7.config(values=cursor.fetchall())
-            return tables
+            exec = cursor.execute(f"show tables")
+            tables = cursor.fetchall()
+            ent1L2F4.config(values=tables)
+            ent1L2F6.config(values=tables)
+            ent1L1F7.config(values=tables)
+            return exec
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -181,6 +169,13 @@ root.title('Arabian Developer [Database Managment System]') # Change The Title
 # root.iconbitmap('assets/icon.ico') # Change The Icon
 title1 = Label(root,text='Database Managment System', fg=PRBG, bg=PRIMARYCOLOR, font=(FONT, 14))
 title1.pack(fill=X)
+
+database = StringVar(root)
+server = StringVar(root)
+username = StringVar(root)
+password = StringVar(root)
+is_connect = Variable(root, False)
+
 
 F1 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F1.place(x=5, y=40, width=300, height=190)
@@ -397,12 +392,18 @@ titleF10.pack(fill=X)
 
 L1F10 = Label(F10, bg=SEBG, text=f'Server : ')
 L1F10.place(x=25, y=50)
+SRLF10 = Label(F10, bg=SEBG, textvariable=server)
+SRLF10.place(x=70, y=50)
 
 L2F10 = Label(F10, bg=SEBG, text=f'Database : ')
 L2F10.place(x=25, y=80)
+DBLF10 = Label(F10, bg=SEBG, textvariable=database)
+DBLF10.place(x=90, y=80)
 
-L3F10 = Label(F10, bg=SEBG, text=f'Is Connect : {is_connect}')
+L3F10 = Label(F10, bg=SEBG, text=f'Is Connect : ')
 L3F10.place(x=220, y=50)
+ICLF10 = Label(F10, bg=SECONDRYCOLOR, textvariable=is_connect)
+ICLF10.place(x=290, y=50)
 
 L4F10 = Label(F10, bg=SEBG, text=f'Tables : ')
 L4F10.place(x=220, y=80)
