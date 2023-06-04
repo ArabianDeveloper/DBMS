@@ -21,29 +21,21 @@ def Connection():
     username.set(ent1L2F2.get())
     password.set(ent1L3F2.get())
     try :
-        conn =  pymysql.connect(
-                        host= server.get(),
-                        user= username.get(),
-                        password= password.get()
-                    )
+        conn =  pymysql.connect(host= server.get(), user= username.get(), password= password.get())
         is_connect.set("Connected")
         messagebox.showinfo('Database Managment System', 'server is connected')
-        ent1L1F6.config(values=ShowDB())
-        ent1L1F8.config(values=ShowDB())
+        ShowDB()
     except pymysql.Error as r:
         is_connect.set("Disconnected")
         messagebox.showerror('Error', r)
 
 def ShowDB():
-    global server
-    global username
-    global password
-
     try :
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
-            databases = cursor.execute("SHOW DATABASES")
-            databases = cursor.execute("SHOW DATABASES")
+            exec = cursor.execute("SHOW DATABASES")
+            databases = cursor.fetchall()
+            ent1L1F6['values'], ent1L1F8['values'] = databases, databases
             placer(F5, w=190, h=250)
             return cursor.fetchall()
 
@@ -67,15 +59,13 @@ def Create_Col():
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
-def CHDB():
-    global database
+def CHDB(db):
     try : 
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
-            cursor.execute(f'use {ent1L1F8.get()}')
-            database.set(ent1L1F8.get())
+            database.set(db)
+            cursor.execute(f'use {database.get()}')
             conn.commit()
-        L4F10.configure(text=f'Tables : {tables()}')
         tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -86,7 +76,8 @@ def CRDB():
         with conn.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE `{ent1L2F1.get()}`;")
         ShowDB()
-        
+        database.set(ent1L2F1.get())
+        CHDB(database.get())
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -96,7 +87,6 @@ def deldb():
         with conn.cursor() as cursor:
             cursor.execute(f"DROP DATABASE `{ent1L1F6.get()}`;")
         ShowDB()
-        L4F10.configure(text=f'Tables : ')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -122,18 +112,18 @@ def comfile():
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         print(file)
         with conn.cursor() as cursor:
-            cursor.execute(f"source {file}")
+            print(file)
+            cursor.execute("SOURCE "+ file)
         messagebox.showinfo('Done', 'تم تنفيذ اوامر الملف')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
 def chfi():
     global file
-    file = filedialog.askopenfilename(title='Chose file to run DPMS-ARDE ')
+    file = filedialog.askopenfilename(title='Chose file to run DPMS-ARDE ').replace("/","\\")
     if len(file) > 1:
         if len(file) > 20:
-            file = file.replace(file[20:], '') + '...'
-            L2F9.configure(text = file)
+            L2F9.configure(text = file.replace(file[20:], '') + '...')
         else :
             L2F9.configure(text = file)
 
@@ -144,7 +134,7 @@ def tables():
             exec = cursor.execute(f"show tables")
             tables = cursor.fetchall()
             ent1L1F7['values'], ent1L2F6['values'], ent1L2F4['values'] = tables, tables, tables
-            return exec
+            tbnum.set(exec)
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -166,6 +156,7 @@ username = StringVar(root)
 password = StringVar(root)
 is_connect = StringVar(root, 'Disconnected')
 
+tbnum = IntVar(root)
 
 F1 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F1.place(x=5, y=40, width=300, height=190)
@@ -355,7 +346,7 @@ L1F8.place(x=5, y=50)
 ent1L1F8 = ttk.Combobox(F8)
 ent1L1F8.place(x=65,y=50, width=105)
 
-btn1F8 = Button(F8, cursor='hand2', text='Switch', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=CHDB)
+btn1F8 = Button(F8, cursor='hand2', text='Switch', bg=SUCCESSCOLOR, fg=FONTCOLOR, command=lambda:CHDB(ent1L1F8.get()))
 btn1F8.place(x=5, y=80, width=170)
 
 
@@ -397,6 +388,8 @@ ICLF10.place(x=290, y=50)
 
 L4F10 = Label(F10, bg=SEBG, text=f'Tables : ')
 L4F10.place(x=220, y=80)
+TNLF10 = Label(F10, bg=SEBG, textvariable=tbnum)
+TNLF10.place(x=260, y=80)
 
 L5F10 = Label(F10, bg=SEBG, text='DEVELOPED BY : ARABIAN DEVELOPER ')
 L5F10.place(x=85, y=130)

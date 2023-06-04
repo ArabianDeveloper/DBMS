@@ -15,17 +15,4 @@
 #         print(r)
 
 # print(tables())
-import tkinter as tk
-import tkinter.ttk as ttk
-
-root = tk.Tk()
-
-# قائمة المنسدلة
-options = ['Option 1', 'Option 2', 'Option 3']
-dropdown = ttk.Combobox(root, values=options)
-dropdown.pack()
-
-# دالة التحديث لقائمة المنسدلة
-def update_dropdown():
-    new_options = ['New Option 1', 'New Option 2', 'New Option 3']
-    dropdown['values'] = new_options
+print("\\\\")
