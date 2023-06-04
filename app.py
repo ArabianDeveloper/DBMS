@@ -156,8 +156,6 @@ def chfi():
         else :
             L2F9.configure(text = file)
 
-Variable()
-
 def tables():
     try :
         conn = pymysql.connect(host=server, user= username, password=password, database=db)
