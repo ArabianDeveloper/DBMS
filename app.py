@@ -17,11 +17,6 @@ FONTCOLOR = 'white'
 file = ''
 
 def Connection():
-    global is_connect
-    global server
-    global username
-    global password
-
     server.set(ent1L1F2.get())
     username.set(ent1L2F2.get())
     password.set(ent1L3F2.get())
@@ -31,12 +26,12 @@ def Connection():
                         user= username.get(),
                         password= password.get()
                     )
-        is_connect.set(True)
+        is_connect.set("Connected")
         messagebox.showinfo('Database Managment System', 'server is connected')
         ent1L1F6.config(values=ShowDB())
         ent1L1F8.config(values=ShowDB())
     except pymysql.Error as r:
-        is_connect.set(False)
+        is_connect.set("Disconnected")
         messagebox.showerror('Error', r)
 
 def ShowDB():
@@ -48,12 +43,9 @@ def ShowDB():
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             databases = cursor.execute("SHOW DATABASES")
-            for db in cursor:
-                L1F5 = Label(F5, bg=SEBG, text=db[0])
-                L1F5.pack()
             databases = cursor.execute("SHOW DATABASES")
+            placer(F5, w=190, h=250)
             return cursor.fetchall()
-        placer(F5, w=190, h=250)
 
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -62,7 +54,7 @@ def Create_Tabel():
     try :
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
-            sql = cursor.execute(f"CREATE TABEL {database.get()} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL);")
+            sql = cursor.execute(f"CREATE TABLE {database.get()} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL);")
         tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -151,9 +143,7 @@ def tables():
         with conn.cursor() as cursor:
             exec = cursor.execute(f"show tables")
             tables = cursor.fetchall()
-            ent1L2F4.config(values=tables)
-            ent1L2F6.config(values=tables)
-            ent1L1F7.config(values=tables)
+            ent1L1F7['values'], ent1L2F6['values'], ent1L2F4['values'] = tables, tables, tables
             return exec
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -174,7 +164,7 @@ database = StringVar(root)
 server = StringVar(root)
 username = StringVar(root)
 password = StringVar(root)
-is_connect = Variable(root, False)
+is_connect = StringVar(root, 'Disconnected')
 
 
 F1 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
@@ -297,7 +287,7 @@ ent1L3F4.place(x=86,y=80, width=100)
 L4F4 = Label(F4, bg=SEBG, text='Col-Type')
 L4F4.place(x=6,y=110)
 choices = ['int', 'varchar', 'text', 'date']
-ent1L4F4 = ttk.Combobox(F4, values = choices)
+ent1L4F4 = ttk.Combobox(F4, values=choices)
 ent1L4F4.place(x=86,y=110, width=100)
 
 L5F4 = Label(F4, bg=SEBG, text='Col-Length')
@@ -311,7 +301,7 @@ btn1F4.place(x=6, y=205, width=180)
 
 
 F5 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
-F5.place(x=420, y=240, width=0, height=0)
+F5.place(x=420, y=240, width=190, height=250)
 titleF5 = Label(F5,text='Databases', fg='white', bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF5.pack(fill=X)
 
@@ -400,9 +390,9 @@ L2F10.place(x=25, y=80)
 DBLF10 = Label(F10, bg=SEBG, textvariable=database)
 DBLF10.place(x=90, y=80)
 
-L3F10 = Label(F10, bg=SEBG, text=f'Is Connect : ')
+L3F10 = Label(F10, bg=SEBG, text=f'Connection : ')
 L3F10.place(x=220, y=50)
-ICLF10 = Label(F10, bg=SECONDRYCOLOR, textvariable=is_connect)
+ICLF10 = Label(F10, bg=SEBG, textvariable=is_connect)
 ICLF10.place(x=290, y=50)
 
 L4F10 = Label(F10, bg=SEBG, text=f'Tables : ')
