@@ -24,12 +24,13 @@ def Connection():
         conn =  pymysql.connect(host= server.get(), user= username.get(), password= password.get())
         is_connect.set("Connected")
         messagebox.showinfo('Database Managment System', 'server is connected')
-        ShowDB()
+        databases()
     except pymysql.Error as r:
         is_connect.set("Disconnected")
         messagebox.showerror('Error', r)
 
-def ShowDB():
+def databases():
+    global DB
     try :
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
@@ -37,8 +38,11 @@ def ShowDB():
             databases = cursor.fetchall()
             ent1L1F6['values'], ent1L1F8['values'] = databases, databases
             placer(F5, w=190, h=250)
-            return cursor.fetchall()
-
+            # DBLF5.destroy()
+            # for n in databases:
+            #     DBLF5 = Label(F5, text=n[0], bg=SEBG)
+            #     DBLF5.pack()
+            return databases
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -48,6 +52,7 @@ def Create_Tabel():
         with conn.cursor() as cursor:
             sql = cursor.execute(f"CREATE TABLE {database.get()} . {ent1L2F3.get()} ({ent1L3F3.get()} {ent1L4F3.get()}({ent1L5F3.get()}) NOT NULL);")
         tables()
+        messagebox.showinfo('Database Managment System', 'Table is created')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -56,6 +61,7 @@ def Create_Col():
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
             sql = cursor.execute(f"ALTER TABLE `{ent1L2F4.get()}` ADD `{ent1L3F4.get()}` {ent1L4F4.get()}({ent1L5F4.get()}) NOT NULL {ent1L1F4.get().replace(',',' ')};")
+            messagebox.showinfo('Database Managment System', 'Column is created')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -66,6 +72,7 @@ def CHDB(db):
             database.set(db)
             cursor.execute(f'use {database.get()}')
             conn.commit()
+        messagebox.showinfo('Database Managment System', 'The database is changed')
         tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -75,8 +82,9 @@ def CRDB():
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE `{ent1L2F1.get()}`;")
-        ShowDB()
+        databases()
         database.set(ent1L2F1.get())
+        messagebox.showinfo('Database Managment System', 'Database is created')
         CHDB(database.get())
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -86,7 +94,11 @@ def deldb():
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             cursor.execute(f"DROP DATABASE `{ent1L1F6.get()}`;")
-        ShowDB()
+        databases()
+        ent1L1F6.delete(0, END)
+        database.set("")
+        messagebox.showinfo('Database Managment System', 'Database is removed')
+        tables()
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -96,6 +108,8 @@ def deltb():
         with conn.cursor() as cursor:
             cursor.execute(f"DROP TABLE `{database.get()}`.`{ent1L2F6.get()}`")
         tables()
+        ent1L2F6.delete(0, END)
+        messagebox.showinfo('Database Managment System', 'Table is removed')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -104,6 +118,8 @@ def delcol():
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
             cursor.execute(f"ALTER TABLE `{ent1L1F7.get()}` DROP `{ent1L2F7.get()}`;")
+        ent1L2F7.delete(0, END)
+        messagebox.showinfo('Database Managment System', 'Column is removed')
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -131,10 +147,14 @@ def tables():
     try :
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
         with conn.cursor() as cursor:
-            exec = cursor.execute(f"show tables")
-            tables = cursor.fetchall()
-            ent1L1F7['values'], ent1L2F6['values'], ent1L2F4['values'] = tables, tables, tables
-            tbnum.set(exec)
+            if len(database.get()) == 0:
+                ent1L1F7['values'], ent1L2F6['values'], ent1L2F4['values'] = (), (), ()
+                tbnum.set(0)
+            else:
+                exec = cursor.execute(f"show tables")
+                tables = cursor.fetchall()
+                ent1L1F7['values'], ent1L2F6['values'], ent1L2F4['values'] = tables, tables, tables
+                tbnum.set(exec)
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
 
@@ -165,7 +185,7 @@ titleF1.pack(fill=X)
 
 L1F1 = Label(F1, bg=SEBG, text='Databases')
 L1F1.place(x=10, y=50) 
-btn1L1F1 = Button(F1, cursor='hand2', text='Show', command=ShowDB)
+btn1L1F1 = Button(F1, cursor='hand2', text='Show', command=databases)
 btn1L1F1.place(x=100, y=50, width=125)
 btn2L1F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='Hide', command=lambda:placer(F5, w=0, h=0))
 btn2L1F1.place(x=230, y=50, width=60)
@@ -295,6 +315,8 @@ F5 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F5.place(x=420, y=240, width=190, height=250)
 titleF5 = Label(F5,text='Databases', fg='white', bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF5.pack(fill=X)
+DBLF5 = Label(F5, bg=SEBG)
+DBLF5.pack()
 
 
 F6 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
