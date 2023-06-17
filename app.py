@@ -31,17 +31,22 @@ def Connection():
 
 def databases():
     global DB
+    global fdbs
     try :
+        fdbs.destroy()
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             exec = cursor.execute("SHOW DATABASES")
             databases = cursor.fetchall()
             ent1L1F6['values'], ent1L1F8['values'] = databases, databases
-            placer(F5, w=190, h=250)
-            # DBLF5.destroy()
-            # for n in databases:
-            #     DBLF5 = Label(F5, text=n[0], bg=SEBG)
-            #     DBLF5.pack()
+            fdbs = Frame(F5, bg=SEBG)
+            fdbs.place(x = 0, y = 25, width=185, height=220)
+            for i in databases:
+                fdb = Frame(fdbs, bg=SEBG)
+                fdb.grid(row = databases.index(i)+1, column = 0, ipadx = 92, ipady = 15)
+
+                lb1fdb = Label(fdb, text=i[0], fg = PRIMARYCOLOR, bg=SEBG, font=("Tajawal",11))
+                lb1fdb.place(x = 1, y = 1)
             return databases
     except pymysql.Error as r:
         messagebox.showerror('Error', r)
@@ -315,9 +320,8 @@ F5 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F5.place(x=420, y=240, width=190, height=250)
 titleF5 = Label(F5,text='Databases', fg='white', bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF5.pack(fill=X)
-DBLF5 = Label(F5, bg=SEBG)
-DBLF5.pack()
-
+fdbs = Frame(F5, bg=SEBG)
+fdbs.place(x = 0, y = 25, width=185, height=220)
 
 F6 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F6.place(x=615, y=40, width=200, height=120)
