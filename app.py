@@ -1,8 +1,6 @@
 from tkinter import *
 from tkinter import messagebox, filedialog, ttk
-import pymysql
-
-
+import pymysql, os
 
 # Variables
 PRIMARYCOLOR = '#19282F'
@@ -13,7 +11,6 @@ PRBG = 'white'
 SEBG = 'whitesmoke'
 FONTCOLOR = 'white'
 
-
 file = ''
 
 def Connection():
@@ -21,17 +18,20 @@ def Connection():
     username.set(ent1L2F2.get())
     password.set(ent1L3F2.get())
     try :
-        conn =  pymysql.connect(host= server.get(), user= username.get(), password= password.get())
+        conn = pymysql.connect(host= server.get(), user= username.get(), password= password.get())
         is_connect.set("Connected")
         messagebox.showinfo('Database Managment System', 'server is connected')
         databases()
+        database.set(databases()[0][0])
+        tables()
     except pymysql.Error as r:
         is_connect.set("Disconnected")
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def databases():
     global DB
     global fdbs
+    placer(F5, 190,250)
     try :
         fdbs.destroy()
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
@@ -43,13 +43,13 @@ def databases():
             fdbs.place(x = 0, y = 25, width=185, height=220)
             for i in databases:
                 fdb = Frame(fdbs, bg=SEBG)
-                fdb.grid(row = databases.index(i)+1, column = 0, ipadx = 92, ipady = 15)
+                fdb.grid(row = databases.index(i)+1, column = 0, ipadx = 92, ipady = 10)
 
                 lb1fdb = Label(fdb, text=i[0], fg = PRIMARYCOLOR, bg=SEBG, font=("Tajawal",11))
                 lb1fdb.place(x = 1, y = 1)
             return databases
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def Create_Tabel():
     try :
@@ -59,7 +59,7 @@ def Create_Tabel():
         tables()
         messagebox.showinfo('Database Managment System', 'Table is created')
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def Create_Col():
     try :
@@ -68,19 +68,19 @@ def Create_Col():
             sql = cursor.execute(f"ALTER TABLE `{ent1L2F4.get()}` ADD `{ent1L3F4.get()}` {ent1L4F4.get()}({ent1L5F4.get()}) NOT NULL {ent1L1F4.get().replace(',',' ')};")
             messagebox.showinfo('Database Managment System', 'Column is created')
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def CHDB(db):
     try : 
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
-            database.set(db)
-            cursor.execute(f'use {database.get()}')
+            cursor.execute(f'use {db}')
             conn.commit()
+            database.set(db)
+            tables()
         messagebox.showinfo('Database Managment System', 'The database is changed')
-        tables()
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def CRDB():
     try :
@@ -88,24 +88,24 @@ def CRDB():
         with conn.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE `{ent1L2F1.get()}`;")
         databases()
-        database.set(ent1L2F1.get())
         messagebox.showinfo('Database Managment System', 'Database is created')
-        CHDB(database.get())
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def deldb():
     try :
         conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
         with conn.cursor() as cursor:
             cursor.execute(f"DROP DATABASE `{ent1L1F6.get()}`;")
-        databases()
+        if database.get() == ent1L1F6.get():
+            database.set("")
+            database.set(databases()[-1][0])
+            tables()
         ent1L1F6.delete(0, END)
-        database.set("")
+        databases()
         messagebox.showinfo('Database Managment System', 'Database is removed')
-        tables()
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def deltb():
     try :
@@ -116,7 +116,7 @@ def deltb():
         ent1L2F6.delete(0, END)
         messagebox.showinfo('Database Managment System', 'Table is removed')
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def delcol():
     try :
@@ -126,27 +126,31 @@ def delcol():
         ent1L2F7.delete(0, END)
         messagebox.showinfo('Database Managment System', 'Column is removed')
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
-
-def comfile():
-    try :
-        conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get(), database=database.get())
-        print(file)
-        with conn.cursor() as cursor:
-            print(file)
-            cursor.execute("SOURCE "+ file)
-        messagebox.showinfo('Done', 'تم تنفيذ اوامر الملف')
-    except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def chfi():
     global file
-    file = filedialog.askopenfilename(title='Chose file to run DPMS-ARDE ').replace("/","\\")
+    file = os.path.abspath(filedialog.askopenfilename(title='Chose file to run DPMS-ARDE '))
     if len(file) > 1:
         if len(file) > 20:
             L2F9.configure(text = file.replace(file[20:], '') + '...')
         else :
             L2F9.configure(text = file)
+
+def comfile():
+    if len(file) > 1:
+        try :
+            conn = pymysql.connect(host=server.get(), user= username.get(), password=password.get())
+            with conn.cursor() as cursor:
+                with open(file, 'r') as f:
+                    sqls = f.readlines()
+                for sql in sqls:
+                    cursor.execute(sql)
+            messagebox.showinfo('Done', 'تم تنفيذ اوامر الملف')
+            databases()
+            tables()
+        except pymysql.Error as r:
+            messagebox.showerror('Error', r.args[1])
 
 def tables():
     try :
@@ -161,7 +165,7 @@ def tables():
                 ent1L1F7['values'], ent1L2F6['values'], ent1L2F4['values'] = tables, tables, tables
                 tbnum.set(exec)
     except pymysql.Error as r:
-        messagebox.showerror('Error', r)
+        messagebox.showerror('Error', r.args[1])
 
 def placer(element, w, h):
     element.place(width=w, height=h)
@@ -211,7 +215,7 @@ btn2L3F1.place(x=230, y=110, width=60)
 
 L4F1 = Label(F1, bg=SEBG, text='Cols')
 L4F1.place(x=10, y=140)
-btn1L4F1 = Button(F1, cursor='hand2', text='Create Col', command=lambda:placer(F4, w=200, h=250))
+btn1L4F1 = Button(F1, cursor='hand2', text='Create Column', command=lambda:placer(F4, w=200, h=250))
 btn1L4F1.place(x=100, y=140, width=125)
 btn2L4F1 = Button(F1, cursor='hand2', bg=SUCCESSCOLOR, fg=FONTCOLOR, text='Hide', command=lambda:placer(F4, w=0, h=0))
 btn2L4F1.place(x=230, y=140, width=60)
@@ -244,7 +248,7 @@ btn1F2.place(x=100, y=140, width=180)
 
 
 F3 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
-F3.place(x=5, y=240, width=200, height=250)
+F3.place(x=203, y=240, width=200, height=250)
 titleF3 = Label(F3,text='Create Table', fg=FONTCOLOR, bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF3.pack(fill=X)
 
@@ -281,7 +285,7 @@ btn1F3.place(x=6, y=205, width=180)
 
 
 F4 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
-F4.place(x=213, y=240, width=200, height=250)
+F4.place(x=410, y=240, width=200, height=250)
 titleF4 = Label(F4,text='Create Column', fg=FONTCOLOR, bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF4.pack(fill=X)
 
@@ -317,11 +321,12 @@ btn1F4.place(x=6, y=205, width=180)
 
 
 F5 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
-F5.place(x=420, y=240, width=190, height=250)
+F5.place(x=5, y=240, width=190, height=250)
 titleF5 = Label(F5,text='Databases', fg='white', bg=SECONDRYCOLOR, font=(FONT, 12))
 titleF5.pack(fill=X)
 fdbs = Frame(F5, bg=SEBG)
 fdbs.place(x = 0, y = 25, width=185, height=220)
+
 
 F6 = Frame(root, bg=SEBG, bd='2', relief=GROOVE)
 F6.place(x=615, y=40, width=200, height=120)
